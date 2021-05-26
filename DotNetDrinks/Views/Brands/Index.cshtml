@@ -1,11 +1,15 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model IEnumerable<DotNetDrinks.Models.Brand>
+
 <h1>Our Brands</h1>
 
 <ul>
+    @foreach (var b in Model)
+            {
+                <li>
+                    <a asp-controller="Brands" asp-action="Details" asp-route-name="@b.Name">@b.Name</a> (@b.YearFounded) 
+                </li>
+            } 
+
     @*<li>
         <a asp-controller="Brands" asp-action="Details" asp-route-name="Canadian Club">Canadian Club</a>
     </li>
