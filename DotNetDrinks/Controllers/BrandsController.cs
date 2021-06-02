@@ -27,7 +27,18 @@ namespace DotNetDrinks.Controllers
         // GET: /Brands/Details?name=Some Brand
         public IActionResult Details(string name)
         {
+            if (name == null)
+            {
+                return BadRequest();
+            }
+
             ViewBag.name = name;
+            return View();
+        }
+
+        // GET: /Brands/Create
+        public IActionResult Create()
+        {
             return View();
         }
     }
