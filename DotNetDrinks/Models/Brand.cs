@@ -11,10 +11,14 @@ namespace DotNetDrinks.Models
         // in ASP.NET, key fields should always be called either Id or {Model}Id
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Hey You!  Don't forget me!!")]
+        [MaxLength(100)]
         public string Name { get; set; }
 
         [Range(1400, 2025)]
         public int YearFounded { get; set; }
+
+        // navigation property to child Product objects
+        public List<Product> Products { get; set;  }
     }
 }
