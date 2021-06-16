@@ -47,7 +47,14 @@
                 @Html.DisplayFor(modelItem => item.Stock)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Image)
+                @if (item.Image != null)
+                {
+                    <img src="~/img/products/@item.Image" alt="Product Image" class="img-thumbnail" />
+                }
+                else
+                {
+                    <img src="~/img/products/placeholder.gif" alt="Product Image" class="img-thumbnail" />
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Brand.Name)

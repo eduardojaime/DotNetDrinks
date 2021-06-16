@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace DotNetDrinks.Controllers
 {
@@ -49,8 +51,8 @@ namespace DotNetDrinks.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
+            ViewData["BrandId"] = new SelectList(_context.Brands.OrderBy(b => b.Name), "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.Categories.OrderBy(c => c.Name), "Id", "Name");
             return View();
         }
 
@@ -59,10 +61,26 @@ namespace DotNetDrinks.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock,Image,BrandId,CategoryId")] Product product)
+        public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock,BrandId,CategoryId")] Product product, IFormFile Image)
         {
             if (ModelState.IsValid)
             {
+                // upload photo and attach to the new product if any
+                if (Image != null)
+                {
+                    var filePath = Path.GetTempFileName(); // get image from cache
+                    var fileName = Guid.NewGuid() + "-" + Image.FileName; // add unique id as prefix to file name
+                    var uploadPath = System.IO.Directory.GetCurrentDirectory() + "\\wwwroot\\img\\products\\" + fileName;
+
+                    using (var stream = new FileStream(uploadPath, FileMode.Create))
+                    {
+                        await Image.CopyToAsync(stream);
+                    }
+
+                    // add unique Image file name to the new product object before saving
+                    product.Image = fileName;
+                }
+
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
