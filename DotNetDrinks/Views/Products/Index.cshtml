@@ -1,35 +1,35 @@
 ﻿@model IEnumerable<DotNetDrinks.Models.Product>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Products";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Products</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+<table class="table sortable">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                <a href="#">@Html.DisplayNameFor(model => model.Name)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                <a href="#">@Html.DisplayNameFor(model => model.Price)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Stock)
+                <a href="#">@Html.DisplayNameFor(model => model.Stock)</a>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Image)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Brand)
+                <a href="#">@Html.DisplayNameFor(model => model.Brand)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                <a href="#">@Html.DisplayNameFor(model => model.Category)</a>
             </th>
             <th></th>
         </tr>
@@ -53,7 +53,7 @@
                 @Html.DisplayFor(modelItem => item.Brand.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Category.Id)
+                @Html.DisplayFor(modelItem => item.Category.Name)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

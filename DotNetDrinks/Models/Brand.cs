@@ -16,6 +16,7 @@ namespace DotNetDrinks.Models
         public string Name { get; set; }
 
         [Range(1400, 2025)]
+        [Display(Name = "Year Founded")]
         public int YearFounded { get; set; }
 
         // navigation property to child Product objects

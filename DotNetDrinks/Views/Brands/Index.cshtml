@@ -1,23 +1,23 @@
 ﻿@model IEnumerable<DotNetDrinks.Models.Brand>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Brands";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Brands</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+<table class="table sortable">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                <a href="#">@Html.DisplayNameFor(model => model.Name)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.YearFounded)
+                <a href="#">@Html.DisplayNameFor(model => model.YearFounded)</a>
             </th>
             <th></th>
         </tr>

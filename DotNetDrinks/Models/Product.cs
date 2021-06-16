@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@ namespace DotNetDrinks.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:c}")]
         public decimal Price { get; set; }
         public int Stock { get; set; }
         public string Image { get; set; }
