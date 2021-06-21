@@ -6,13 +6,16 @@
 
 <h1>Index</h1>
 
-<div class="container">
+<section class="row card-group">
     @foreach (var item in Model)
     {
-        <div class="card">
-            <div class="card-body">
-                @Html.DisplayFor(modelItem => item.Name)
+        <div class="col-sm-6 col-lg-4 mb-3">
+            <div class="card mb-6 text-center h-100">
+                <div class="card-body">
+                    <a asp-controller="Store" asp-action="Browse" asp-route-id="@item.Id">@item.Name</a>
+                    @*@Html.DisplayFor(modelItem => item.Name)*@
+                </div>
             </div>
         </div>
     }
-</div>
+</section>
