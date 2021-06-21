@@ -1,0 +1,18 @@
+﻿@model IEnumerable<DotNetDrinks.Models.Category>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<div class="container">
+    @foreach (var item in Model)
+    {
+        <div class="card">
+            <div class="card-body">
+                @Html.DisplayFor(modelItem => item.Name)
+            </div>
+        </div>
+    }
+</div>

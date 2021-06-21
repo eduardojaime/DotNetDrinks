@@ -7,9 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetDrinks.Controllers
 {
+    // To make all methods in this controller accessible to authenticated users ONLY add:
+    // [Authorize]
+    // To make all methods in this controller accessible to authenticated users with Admin roles ONLY add:
+    [Authorize(Roles = "Administrator")]
     public class BrandsController : Controller
     {
         private readonly ApplicationDbContext _context;
