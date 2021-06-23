@@ -9,9 +9,14 @@ using DotNetDrinks.Data;
 using DotNetDrinks.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetDrinks.Controllers
 {
+    // To make all methods in this controller accessible to authenticated users ONLY add:
+    // [Authorize]
+    // To make all methods in this controller accessible to authenticated users with Admin roles ONLY add:
+    [Authorize(Roles = "Administrator")]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -7,9 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetDrinks.Controllers
 {
+    // To make all methods in this controller accessible to authenticated users ONLY add:
+    // [Authorize]
+    // To make all methods in this controller accessible to authenticated users with Admin roles ONLY add:
+    [Authorize(Roles = "Administrator")]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,6 +31,8 @@ namespace DotNetDrinks.Controllers
         }
 
         // GET: Categories/Details/5
+        // Allow anonymous users on this method only
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
