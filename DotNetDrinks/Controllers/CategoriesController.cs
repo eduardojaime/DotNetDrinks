@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
+// Add reference to authorization nuget package
 using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetDrinks.Controllers

@@ -23,10 +23,9 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @*
-                            Handles authentication only:
-                            @if (User.Identity.IsAuthenticated)
-                        *@
+                        @*Only checks if the user is authenticated*@
+                        @*@if (User.Identity.IsAuthenticated)*@
+
                         @if (User.IsInRole("Administrator"))
                         {
                             <li class="nav-item">
@@ -39,9 +38,13 @@
                                 <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">Products</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Store" asp-action="Index">Products</a>
-                        </li>
+                        @if (User.IsInRole("Customer"))
+                        {
+                            
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Store" asp-action="Index">Store</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

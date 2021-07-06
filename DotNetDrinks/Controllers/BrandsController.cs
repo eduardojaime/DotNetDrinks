@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
+// Add reference to authorization nuget package
 using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetDrinks.Controllers
@@ -31,6 +32,8 @@ namespace DotNetDrinks.Controllers
         }
 
         // GET: Brands/Details/5
+        // This attribute will allow anybody to access Brands/Details/{id}
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

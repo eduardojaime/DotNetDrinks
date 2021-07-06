@@ -9,6 +9,7 @@ using DotNetDrinks.Data;
 using DotNetDrinks.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+// Add reference to authorization nuget package
 using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetDrinks.Controllers

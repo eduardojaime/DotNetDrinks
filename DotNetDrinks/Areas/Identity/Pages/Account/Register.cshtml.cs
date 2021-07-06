@@ -78,10 +78,10 @@ namespace DotNetDrinks.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    // Temporarily save new user as the Admin
-                    var roleResult = await _userManager.AddToRoleAsync(user, "Administrator");
-                    // Save every new user as a Customer
-                    // var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+                    // After the user is created in my database, associate it to a role
+                    // Second parameter must match the normalized name of your role in your DB
+                    // Temporarily create a single Admin User
+                    var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
 
                     _logger.LogInformation("User created a new account with password.");
 
