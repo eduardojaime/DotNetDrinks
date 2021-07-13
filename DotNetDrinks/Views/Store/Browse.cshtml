@@ -1,0 +1,36 @@
+﻿@model IEnumerable<DotNetDrinks.Models.Product>
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>View</h1>
+@if (ViewBag.Category != null)
+{
+    <h2>@ViewBag.Category</h2>
+}
+
+<section class="row card-group">
+    @foreach (var product in Model)
+    {
+        <div class="col-sm-6 col-lg-4 mb-3">
+            <div class="card mb-4 text-center h-100">
+                <div class="card-body">
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id">@product.Name</a>
+                    <h6>@String.Format("{0:C}", product.Price)</h6>
+                    <p>@product.Brand</p>
+                    <img src="~/img/products/@product.Image" alt="Logo for @product.Name" class="img-thumbnail" />
+                    <form method="post" action="/Store/AddToCart">
+                        <input type="hidden" id="ProductId" name="ProductId" value="@product.Id" />
+                        <div class="form-group">
+                            <label class="form-control" for="Quantity">Quantity: </label>
+                            <input name="Quantity" id="Quantity" required 
+                                   type="number" min="1" max="999" />
+                        </div>
+                        <button class="btn btn-primary">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+

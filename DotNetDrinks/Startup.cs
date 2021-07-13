@@ -43,6 +43,8 @@ namespace DotNetDrinks
                     options.ClientSecret = Configuration.GetSection("Authentication:Google")["ClientSecret"];
                 });
 
+            services.AddSession();
+
             services.AddControllersWithViews();
         }
 
@@ -67,6 +69,8 @@ namespace DotNetDrinks
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
