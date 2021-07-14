@@ -38,13 +38,10 @@
                                 <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">Products</a>
                             </li>
                         }
-                        @if (User.IsInRole("Customer"))
-                        {
-                            
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Store" asp-action="Index">Store</a>
-                            </li>
-                        }
+                        @* Remove if statement to show the store to any user *@
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Store" asp-action="Index">Store</a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

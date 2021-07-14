@@ -10,7 +10,9 @@ namespace DotNetDrinks.Models
         public int Id { get; set; }
         public int Quantity { get; set; }
         public int ProductId { get; set; }
-        public string CustomerId { get; set; }
+        // how can I identify an anonymous user? Random GUID
+        // where to store that GUID so that we can identify browsers? Session 
+        public string CustomerId { get; set; } 
         public decimal Price { get; set; }
         public DateTime DateCreated { get; set; }
 
