@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -23,6 +25,15 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Store" asp-action="Cart">
+                                <span class="material-icons align-top">
+                                    shopping_cart
+                                </span>
+                                <span class="badge badge-secondary">@* TODO ItemCount *@</span>
+                            </a>
+                        </li>
+
                         @*Only checks if the user is authenticated*@
                         @*@if (User.Identity.IsAuthenticated)*@
 

@@ -8,16 +8,23 @@ using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using DotNetDrinks.Extensions;
+
+using Stripe;
+using Microsoft.Extensions.Configuration;
 
 namespace DotNetDrinks.Controllers
 {
     public class StoreController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private IConfiguration _configuration;
 
-        public StoreController(ApplicationDbContext context)
+        public StoreController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: /Store
@@ -81,8 +88,80 @@ namespace DotNetDrinks.Controllers
             string customerId = GetCustomerId();
             // Use LINQ to query the Carts collection
             // Cart is a list of Products
-            var cart = _context.Carts.Where(c => c.CustomerId == customerId).ToList();
+            var cart = _context.Carts.Include(c => c.Product).Where(c => c.CustomerId == customerId).ToList();
             return View(cart);
+        }
+
+        [Authorize]
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Checkout([Bind("Address,City,Province,PostalCode")] Models.Order order)
+        {
+            // populate 3 automatic order properties
+            order.OrderDate = DateTime.UtcNow;
+            order.CustomerId = User.Identity.Name;
+
+            // calculate order total
+            var cartCustomerId = GetCustomerId();
+            var cartItems = _context.Carts
+                            .Where(c => c.CustomerId == cartCustomerId)
+                            .ToList();
+
+            order.Total = cartItems.Sum(c => c.Price);
+
+            // Use SessionsExtension object to store the order object
+            HttpContext.Session.SetObject("Order", order);
+
+            return RedirectToAction("Payment");
+        }
+
+        public IActionResult RemoveFromCart(int id)
+        {
+            var cartItem = _context.Carts.Where(c => c.Id == id).FirstOrDefault();
+
+            if (cartItem != null)
+            {
+                _context.Carts.Remove(cartItem);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Cart");
+        }
+
+        public IActionResult Payment()
+        {
+            // Get our order
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+            // Stripe amount must be in cents
+            ViewBag.Total = order.Total * 100;
+            // Use configuration to read key from appsettings
+            ViewBag.PublishableKey = _configuration["Stripe:PublishableKey"];
+
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult Payment(string stripeToken)
+        {
+            // create stripe customer
+
+            // create stripe charge
+
+            // save a new order to our db
+
+            // save cart items as new orderdetails to our db
+
+            // delete cart items from order
+
+            // load order confirmation page
+
+            // redirect
+            return View();
         }
 
         // Helper method > not designed to be used outside of this class
@@ -111,5 +190,7 @@ namespace DotNetDrinks.Controllers
             // return whatever is in the session object at this point
             return HttpContext.Session.GetString("CustomerId");
         }
+
+
     }
 }

@@ -45,6 +45,9 @@ namespace DotNetDrinks
 
             services.AddSession();
 
+            //// Add configuration support for StoreController
+            //services.AddSingleton<IConfiguration>(Configuration);
+
             services.AddControllersWithViews();
         }
 
