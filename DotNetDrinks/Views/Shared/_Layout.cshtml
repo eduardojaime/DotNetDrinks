@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -25,6 +26,15 @@
                     <ul class="navbar-nav flex-grow-1">
                         @*Only checks if the user is authenticated*@
                         @*@if (User.Identity.IsAuthenticated)*@
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Store" asp-action="Cart">
+                                <span class="material-icons align-top">
+                                    shopping_cart
+                                </span>
+                                Cart
+                            </a>
+                        </li>
 
                         @if (User.IsInRole("Administrator"))
                         {

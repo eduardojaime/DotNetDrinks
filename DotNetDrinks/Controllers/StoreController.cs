@@ -81,8 +81,29 @@ namespace DotNetDrinks.Controllers
             string customerId = GetCustomerId();
             // Use LINQ to query the Carts collection
             // Cart is a list of Products
-            var cart = _context.Carts.Where(c => c.CustomerId == customerId).ToList();
+            var cart = _context.Carts
+                        .Include(c => c.Product)
+                        .Where(c => c.CustomerId == customerId)
+                        .ToList();
+
+            // CALCULATE TOTAL AND PASS AS A VIEWBAG FIELD
+            var total = cart.Sum(c => c.Price);
+            ViewBag.TotalAmount = total.ToString("C");
+
             return View(cart);
+        }
+
+        public IActionResult RemoveFromCart(int id)
+        {
+            var cartItem = _context.Carts.Where(c => c.Id == id).FirstOrDefault();
+
+            if (cartItem != null)
+            {
+                _context.Carts.Remove(cartItem);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Cart");
         }
 
         // Helper method > not designed to be used outside of this class
