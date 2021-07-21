@@ -8,16 +8,22 @@ using Microsoft.EntityFrameworkCore;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using DotNetDrinks.Extensions;
+using Microsoft.Extensions.Configuration;
 
 namespace DotNetDrinks.Controllers
 {
     public class StoreController : Controller
     {
         private readonly ApplicationDbContext _context;
+        // Use dependency injection to pass a configuration object
+        private IConfiguration _configuration;
 
-        public StoreController(ApplicationDbContext context)
+        public StoreController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: /Store
@@ -104,6 +110,55 @@ namespace DotNetDrinks.Controllers
             }
 
             return RedirectToAction("Cart");
+        }
+
+        [Authorize]
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken] // Only a valid view is able to post back to the server
+        public IActionResult Checkout([Bind("FirstName,LastName,Address,City,Province,PostalCode")] Order order)
+        {
+            // populate the 3 automatic order properties
+            order.OrderDate = DateTime.UtcNow;
+            order.CustomerId = User.Identity.Name;
+
+            // calculate total amount
+            var cartCustomerId = GetCustomerId();
+            var cartItems = _context.Carts.Where(c => c.CustomerId == cartCustomerId).ToList();
+            order.Total = cartItems.Sum(c => c.Price);
+
+            // Store order object in session and
+            // Implement a nuget package
+            HttpContext.Session.SetObject("Order", order);
+
+            // Redirect to payment
+            return RedirectToAction("Payment");
+        }
+
+        [Authorize]
+        public IActionResult Payment()
+        {
+            // Get order object
+            var order = HttpContext.Session.GetObject<Order>("Order");
+            // calculate total in cents
+            ViewBag.Total = order.Total * 100;
+            // read key from appsettings
+            ViewBag.PublishableKey = _configuration["Stripe:PublishableKey"];
+
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult Payment(string stripeToken)
+        {
+            // TODO create customer, charge, save order to db, clear cart, load confirmation page
+            return View();
         }
 
         // Helper method > not designed to be used outside of this class
