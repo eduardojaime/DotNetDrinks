@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using DotNetDrinks.Extensions;
 using Microsoft.Extensions.Configuration;
+// Import necessary packages
+using Stripe;
+using Stripe.Checkout;
 
 namespace DotNetDrinks.Controllers
 {
@@ -121,7 +124,7 @@ namespace DotNetDrinks.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken] // Only a valid view is able to post back to the server
-        public IActionResult Checkout([Bind("FirstName,LastName,Address,City,Province,PostalCode")] Order order)
+        public IActionResult Checkout([Bind("FirstName,LastName,Address,City,Province,PostalCode")] Models.Order order)
         {
             // populate the 3 automatic order properties
             order.OrderDate = DateTime.UtcNow;
@@ -144,7 +147,7 @@ namespace DotNetDrinks.Controllers
         public IActionResult Payment()
         {
             // Get order object
-            var order = HttpContext.Session.GetObject<Order>("Order");
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
             // calculate total in cents
             ViewBag.Total = order.Total * 100;
             // read key from appsettings
@@ -157,8 +160,85 @@ namespace DotNetDrinks.Controllers
         [HttpPost]
         public IActionResult Payment(string stripeToken)
         {
-            // TODO create customer, charge, save order to db, clear cart, load confirmation page
-            return View();
+            // get order object from session variable
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+
+            // Import Stripe and Stripe.Checkout in your program
+            // Fix any reference to Order class, declare it explicitly: Models.Order
+            // get the stripe configuration key
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+
+            // Create Stripe session object >> https://stripe.com/docs/checkout/integration-builder
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long?)(order.Total * 100), // amount in cents
+                            Currency = "cad",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "DotNetDrinks Purchase"
+                            }
+                        },
+                        Quantity =1
+                    }
+                },
+                Mode = "payment",
+                SuccessUrl = $"https://{Request.Host}/Store/SaveOrder",
+                CancelUrl = $"https://{Request.Host}/Store/Cart"
+            };
+
+            // redirect to checkout
+            var service = new SessionService(); // A service is... a class that produces something
+
+            // now use the service object to create a session object based on the options
+            // what this does is calls Stripe's API to create a session on their end
+            // we have the ID value which will be used to redirect the user to Stripe
+            // With this ID stripe will load the amount information on their end
+            Session session = service.Create(options);
+
+            // return json response
+            return Json(new { id = session.Id });
+        }
+
+        // TODO: Create GET /Store/SaveOrder
+        public IActionResult SaveOrder()
+        {
+            // PAYMENT IS SUCCESSFUL AND ORDER SHOULD BE CREATED IN THE DB
+            // get order object from the session store
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+            // save to the db
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+            // Get customerId from session store
+            var customerId = GetCustomerId();
+            // get all cart items to save them in the order details table > 1 cart item = 1 order details record
+            var cartItems = _context.Carts.Where(c => c.CustomerId == customerId);
+            // loop through the list
+            foreach (var item in cartItems)
+            {
+                var orderDetail = new OrderDetail
+                {
+                    OrderId = order.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    Price = item.Price
+                };
+                _context.OrderDetails.Add(orderDetail);
+            }
+            _context.SaveChanges();
+            // clear up cart
+            foreach (var item in cartItems)
+            {
+                _context.Carts.Remove(item);
+            }
+            _context.SaveChanges();
+            return RedirectToAction("Details", "Orders", new { @id = order.Id });
         }
 
         // Helper method > not designed to be used outside of this class
