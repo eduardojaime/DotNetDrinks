@@ -73,7 +73,7 @@ namespace DotNetDrinks.Controllers
             {
                 ProductId = ProductId,
                 Quantity = Quantity,
-                Price = price,
+                Price = price * Quantity,
                 DateCreated = DateTime.UtcNow, // returns date time in UTC timezone
                 CustomerId = customerId
             };
@@ -118,6 +118,7 @@ namespace DotNetDrinks.Controllers
         [Authorize]
         public IActionResult Checkout()
         {
+
             return View();
         }
 
