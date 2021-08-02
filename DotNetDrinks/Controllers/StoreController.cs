@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using DotNetDrinks.Extensions;
 using Microsoft.Extensions.Configuration;
+using Stripe;
+using Stripe.Checkout;
 
 namespace DotNetDrinks.Controllers
 {
@@ -121,7 +123,7 @@ namespace DotNetDrinks.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken] // Only a valid view is able to post back to the server
-        public IActionResult Checkout([Bind("FirstName,LastName,Address,City,Province,PostalCode")] Order order)
+        public IActionResult Checkout([Bind("FirstName,LastName,Address,City,Province,PostalCode")] Models.Order order)
         {
             // populate the 3 automatic order properties
             order.OrderDate = DateTime.UtcNow;
@@ -144,7 +146,7 @@ namespace DotNetDrinks.Controllers
         public IActionResult Payment()
         {
             // Get order object
-            var order = HttpContext.Session.GetObject<Order>("Order");
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
             // calculate total in cents
             ViewBag.Total = order.Total * 100;
             // read key from appsettings
@@ -157,8 +159,88 @@ namespace DotNetDrinks.Controllers
         [HttpPost]
         public IActionResult Payment(string stripeToken)
         {
-            // TODO create customer, charge, save order to db, clear cart, load confirmation page
-            return View();
+            // TODO
+            //get order from session variable
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+
+            // get stripe configuration key
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+
+            // .net integration code from https://stripe.com/docs/checkout/integration-builder
+            var options = new SessionCreateOptions
+            {
+                // specify payment methods
+                PaymentMethodTypes = new List<string> { "card" },
+                // specify line items
+                LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        PriceData= new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long?)(order.Total * 100),
+                            Currency = "cad",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "DotNetDrinks Purchase"
+                            }
+                        },
+                        Quantity = 1
+                    }
+                },
+                // choose mode
+                Mode = "payment",
+                // specify sucess and error urls
+                SuccessUrl = $"https://{Request.Host}/Store/SaveOrder",
+                CancelUrl = $"https://{Request.Host}/Store/Cart"
+            };
+            // create checkout session
+            var service = new SessionService();
+            Session session = service.Create(options);
+            // redirect to checkout
+            return Json(new { id = session.Id });
+        }
+
+        [Authorize]
+        public IActionResult SaveOrder()
+        {
+            // get order object from session store
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+
+            // create new order record in db
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+
+            // Get customerId from session store
+            string customerId = GetCustomerId();
+
+            // copy each item in the cart as a new order datail record
+            var cartItems = _context.Carts.Where(c => c.CustomerId == customerId);
+
+            foreach (var item in cartItems)
+            {
+                var orderDetail = new OrderDetail
+                {
+                    OrderId = order.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    Price = item.Price
+                };
+                _context.OrderDetails.Add(orderDetail);
+            }
+
+            _context.SaveChanges();
+
+            // empty the cart
+            foreach (var item in cartItems)
+            {
+                _context.Carts.Remove(item);
+            }
+            // OR try _context.Carts.RemoveRange(cartItems);
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Details", "Orders", new { @id = order.Id });
         }
 
         // Helper method > not designed to be used outside of this class
