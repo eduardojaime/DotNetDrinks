@@ -3,6 +3,7 @@ using DotNetDrinks.Controllers;
 using DotNetDrinks.Data;
 using DotNetDrinks.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,10 +40,16 @@ namespace DotNetDrinksTests
             var category = new Category { Id = 100, Name = "Test Category" };
             _context.Categories.Add(category);
             _context.SaveChanges();
+
+            // Create 1 brand
+            var brand = new Brand { Id = 100, Name = "No Name" };
+            _context.Brands.Add(brand);
+            _context.SaveChanges();
+
             // Create 3 products
-            products.Add(new Product { Id = 101, Name = "Product", Price = 11, Category = category });
-            products.Add(new Product { Id = 102, Name = "Another Product", Price = 12, Category = category });
-            products.Add(new Product { Id = 103, Name = "Extra Product", Price = 13, Category = category });
+            products.Add(new Product { Id = 101, Name = "Product", Price = 11, Category = category, Brand = brand });
+            products.Add(new Product { Id = 102, Name = "Another Product", Price = 12, Category = category, Brand = brand });
+            products.Add(new Product { Id = 103, Name = "Extra Product", Price = 13, Category = category, Brand = brand });
 
             foreach (var p in products)
             {
@@ -54,17 +61,44 @@ namespace DotNetDrinksTests
             controller = new ProductsController(_context);
         }
 
-
-
         // Tests that I need to write for archieving 100% coverage
-        //Create(GET)
-        //Create(POST)
-        //Delete(GET)
-        //DeleteConfirmed(POST)
-        //Details
-        //Edit(GET)
-        //Edit(POST)
-        //Index(GET)
+        // Create(GET)
+        // Create(POST)
+        // Delete(GET)
+        // DeleteConfirmed(POST)
+        // Details
+        // Edit(GET)
+        // Edit(POST)
+
+        // Index(GET)
+        [TestMethod]
+        public void IndexViewLoads()
+        {
+            // Arrange
+            // we can skip it since this is done in TestInitialize()
+            // Act
+            var result = controller.Index();
+            var viewResult = (ViewResult)result.Result;
+            // Assert
+            Assert.AreEqual("Index", viewResult.ViewName);
+        }
+
+        [TestMethod]
+        public void IndexReturnsProductData()
+        {
+            // Act
+            // Call index action method and cast result
+            var result = controller.Index();
+            var viewResult = (ViewResult)result.Result;
+            // Extract list of product generated in the controller
+            var model = (List<Product>)viewResult.Model;
+            // Match ordering specified in product controller
+            var orderedProducts = products.OrderBy(p => p.Name).ToList();
+            // Assert both lists are equal
+            CollectionAssert.AreEqual(orderedProducts, model);
+        }
+
+        // ProductExists
 
 
 
