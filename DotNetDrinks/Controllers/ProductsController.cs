@@ -22,6 +22,7 @@ namespace DotNetDrinks.Controllers
     {
         private readonly ApplicationDbContext _context;
 
+        // Dependency Injection
         public ProductsController(ApplicationDbContext context)
         {
             _context = context;

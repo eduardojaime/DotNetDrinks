@@ -25,7 +25,8 @@ namespace DotNetDrinks.Controllers
 
         public IActionResult Privacy()
         {
-            return View();
+            // When testing view results, make sure to specify view name
+            return View("Privacy");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
