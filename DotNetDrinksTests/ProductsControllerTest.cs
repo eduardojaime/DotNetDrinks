@@ -63,10 +63,55 @@ namespace DotNetDrinksTests
 
         // Tests that I need to write for archieving 100% coverage
         // Create(GET)
+        [TestMethod]
+        public void GetCreateView()
+        {
+            // Arrange > InitializeTest()
+            // Act
+            // returns ResultView directly since it's not asynch
+            // cast object to ViewResult
+            var result = (ViewResult)controller.Create();
+            // Assert that this is the correct view
+            Assert.AreEqual("Create", result.ViewName);
+
+        }
         // Create(POST)
+        [TestMethod]
+        public void PostCreateProduct()
+        {
+            // Arrange > InitializeTest()
+            // Act
+            // Create a new product
+            Product newProd = new Product { 
+                Name = "TequilaTest", 
+                Price = 100,
+                Stock = 10,
+                BrandId= 100, 
+                CategoryId = 100
+            };
+            // Asynch method returns wrapper around result object
+            var result = controller.Create(newProd, null);
+            // Assert that product is in DB
+            // Select by name
+            var prod = _context.Products
+                .Where(p => p.Name == newProd.Name)
+                .FirstOrDefault();
+            // if found then prod is not null
+            Assert.IsNotNull(prod);
+        }
         // Delete(GET)
         // DeleteConfirmed(POST)
         // Details
+        [TestMethod]
+        public void GetDetailsNotFoundWithNulId()
+        {
+            // Arrange > InitializeTest()
+            // Act
+            var result = controller.Details(null);
+            var notFoundResult = (NotFoundResult)result.Result;
+            // Assert that status code returned is 404 Not Found
+            Assert.AreEqual(404, notFoundResult.StatusCode);
+        }
         // Edit(GET)
         // Edit(POST)
 
